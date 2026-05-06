@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Elegraph Writer Growth Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --crimson: #A31621;
+    --crimson-deep: #7A1018;
+    --crimson-soft: #C94050;
+    --charcoal: #1A1A1A;
+    --ink: #2C2C2C;
+    --ash: #5A5A5A;
+    --silver: #B0B0B0;
+    --cream: #F8F5F0;
+    --white: #FFFFFF;
+    --border: #E5E0D8;
+    --success: #2D7D46;
+    --day-done: #F0F7F3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN SCREEN ─────────────────────────── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--charcoal);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #login-screen::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(163,22,33,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  #login-screen::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(163,22,33,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .login-card {
+    background: var(--white);
+    border-radius: 2px;
+    padding: 52px 48px;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+  }
+
+  .login-logo {
+    margin-bottom: 36px;
+    text-align: center;
+  }
+
+  .login-logo .e-mark {
+    display: inline-block;
+    width: 44px;
+    height: 44px;
+    background: var(--crimson);
+    border-radius: 2px;
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .login-logo .e-mark::before,
+  .login-logo .e-mark::after {
+    content: '';
+    position: absolute;
+    background: var(--white);
+    border-radius: 1px;
+  }
+
+  .login-logo .e-mark::before {
+    width: 60%;
+    height: 3px;
+    top: 50%;
+    left: 20%;
+    transform: translateY(-50%);
+    box-shadow: 0 -8px 0 var(--white), 0 8px 0 var(--white);
+  }
+
+  .login-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ash);
+    font-style: italic;
+  }
+
+  .login-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .login-subtitle {
+    font-size: 13px;
+    color: var(--silver);
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ash);
+    margin-bottom: 8px;
+  }
+
+  .field-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--charcoal);
+    background: var(--white);
+    transition: border-color 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .field-input:focus {
+    outline: none;
+    border-color: var(--crimson);
+  }
+
+  .login-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--crimson);
+    color: var(--white);
+    border: none;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 16px;
+  }
+
+  .login-btn:hover { background: var(--crimson-deep); }
+
+  .login-note {
+    font-size: 11.5px;
+    color: var(--silver);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .login-note strong { color: var(--ash); }
+
+  /* ── MAIN APP ─────────────────────────────── */
+  #app { display: none; }
+
+  /* Top bar */
+  .topbar {
+    background: var(--charcoal);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .topbar-e {
+    width: 28px;
+    height: 28px;
+    background: var(--crimson);
+    border-radius: 2px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .topbar-e::before {
+    content: '';
+    position: absolute;
+    background: var(--white);
+    width: 55%;
+    height: 2px;
+    top: 50%;
+    left: 22%;
+    transform: translateY(-50%);
+    box-shadow: 0 -6px 0 var(--white), 0 6px 0 var(--white);
+    border-radius: 1px;
+  }
+
+  .topbar-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-style: italic;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .topbar-user {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .topbar-user span {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .day-badge {
+    background: var(--crimson);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+  }
+
+  .logout-btn {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: color 0.2s;
+  }
+  .logout-btn:hover { color: rgba(255,255,255,0.8); }
+
+  /* Layout */
+  .app-body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
+  }
+
+  /* Progress header */
+  .progress-header {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .progress-left { flex: 1; }
+
+  .progress-greeting {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+
+  .progress-sub {
+    font-size: 13px;
+    color: var(--ash);
+  }
+
+  .progress-bar-wrap {
+    flex: 2;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--silver);
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--crimson);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  .progress-stats {
+    display: flex;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+
+  .stat-pill {
+    text-align: center;
+  }
+
+  .stat-pill-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--crimson);
+    line-height: 1;
+  }
+
+  .stat-pill-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--silver);
+    margin-top: 4px;
+  }
+
+  /* Tab nav */
+  .tab-nav {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    padding: 12px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ash);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  .tab-btn:hover { color: var(--charcoal); }
+
+  .tab-btn.active {
+    color: var(--crimson);
+    border-bottom-color: var(--crimson);
+  }
+
+  /* Tab panels */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Section card */
+  .section-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+
+  .section-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+
+  .section-card-sub {
+    font-size: 12px;
+    color: var(--silver);
+    margin-bottom: 24px;
+  }
+
+  /* Today's log form */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-group { display: flex; flex-direction: column; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-group label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ash);
+    margin-bottom: 7px;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--charcoal);
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    padding: 10px 14px;
+    background: var(--white);
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--crimson);
+  }
+
+  .form-group textarea { min-height: 80px; }
+
+  .submit-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .btn-primary {
+    padding: 11px 28px;
+    background: var(--crimson);
+    color: var(--white);
+    border: none;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .btn-primary:hover { background: var(--crimson-deep); }
+
+  .btn-ghost {
+    padding: 11px 20px;
+    background: transparent;
+    color: var(--ash);
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover { border-color: var(--ash); color: var(--charcoal); }
+
+  /* Log entries */
+  .log-list { margin-top: 8px; }
+
+  .log-entry {
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .log-entry:hover { border-color: var(--crimson-soft); }
+
+  .log-entry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .log-day-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: var(--crimson);
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+
+  .log-date {
+    font-size: 11px;
+    color: var(--silver);
+  }
+
+  .log-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+
+  .log-field {
+    background: var(--cream);
+    border-radius: 2px;
+    padding: 10px 12px;
+  }
+
+  .log-field-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--silver);
+    margin-bottom: 4px;
+  }
+
+  .log-field-value {
+    font-size: 13px;
+    color: var(--charcoal);
+    line-height: 1.4;
+  }
+
+  .log-field-value.big {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--crimson);
+  }
+
+  .log-note {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--ash);
+    line-height: 1.6;
+    font-style: italic;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  .delete-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--border);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .delete-btn:hover { color: var(--crimson); }
+
+  /* 30-day grid */
+  .day-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .day-cell {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--silver);
+    cursor: default;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .day-cell.logged {
+    background: var(--crimson);
+    border-color: var(--crimson);
+    color: var(--white);
+  }
+
+  .day-cell.today {
+    border-color: var(--crimson);
+    color: var(--crimson);
+    font-weight: 700;
+  }
+
+  .day-cell.logged.today {
+    background: var(--crimson-deep);
+    color: var(--white);
+  }
+
+  .grid-legend {
+    display: flex;
+    gap: 20px;
+    font-size: 11px;
+    color: var(--ash);
+    align-items: center;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  /* Reading tracker */
+  .reading-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reading-item:last-child { border-bottom: none; }
+
+  .reading-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--border);
+    font-weight: 700;
+    min-width: 28px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .reading-info { flex: 1; }
+
+  .reading-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--charcoal);
+    margin-bottom: 3px;
+  }
+
+  .reading-meta {
+    font-size: 12px;
+    color: var(--silver);
+  }
+
+  .reading-status {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .status-reading { background: #FFF3E0; color: #E65100; }
+  .status-done { background: #E8F5E9; color: #2E7D32; }
+  .status-queue { background: var(--cream); color: var(--silver); }
+
+  /* Craft notes */
+  .craft-note {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .craft-note:last-child { border-bottom: none; }
+
+  .craft-note-category {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--crimson);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .craft-note-text {
+    font-size: 14px;
+    color: var(--charcoal);
+    line-height: 1.6;
+  }
+
+  .craft-note-date {
+    font-size: 11px;
+    color: var(--silver);
+    margin-top: 4px;
+  }
+
+  /* Ideas vault */
+  .idea-card {
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .idea-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--charcoal);
+    margin-bottom: 6px;
+  }
+
+  .idea-body {
+    font-size: 13px;
+    color: var(--ash);
+    line-height: 1.6;
+  }
+
+  .idea-tag {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-top: 8px;
+    margin-right: 4px;
+  }
+
+  .tag-book { background: #EEF2FF; color: #3949AB; }
+  .tag-character { background: #FFF8E1; color: #F57F17; }
+  .tag-plot { background: #F3E5F5; color: #7B1FA2; }
+  .tag-theme { background: #E8F5E9; color: #2E7D32; }
+  .tag-other { background: var(--cream); color: var(--ash); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--silver);
+  }
+
+  .empty-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  .empty-text {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Storage info box */
+  .storage-info {
+    background: var(--charcoal);
+    border-radius: 2px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .storage-icon { font-size: 20px; flex-shrink: 0; }
+
+  .storage-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+  }
+
+  .storage-text strong { color: rgba(255,255,255,0.85); }
+
+  .storage-key {
+    margin-left: auto;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-family: monospace;
+    background: rgba(255,255,255,0.06);
+    padding: 4px 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--charcoal);
+    color: var(--white);
+    padding: 14px 20px;
+    border-radius: 2px;
+    font-size: 13px;
+    z-index: 9999;
+    border-left: 3px solid var(--crimson);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .progress-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .progress-stats { gap: 20px; }
+    .form-row { grid-template-columns: 1fr; }
+    .day-grid { grid-template-columns: repeat(6, 1fr); }
+    .topbar { padding: 0 16px; }
+    .app-body { padding: 20px 16px 48px; }
+    .section-card { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="e-mark"></div>
+      <div class="login-brand">Elegraph Publishing</div>
+    </div>
+    <div class="login-title">Writer Growth Dashboard</div>
+    <p class="login-subtitle">30 days. One book at a time. Track your writing, reading, craft, and ideas in one place.</p>
+    <label class="field-label" for="username-input">Your name</label>
+    <input class="field-input" id="username-input" type="text" placeholder="e.g. Barnabas" autocomplete="off"/>
+    <button class="login-btn" onclick="handleLogin()">Enter Dashboard</button>
+    <p class="login-note"><strong>Your data is stored only on this device.</strong><br/>Use the same name each time to access your saved entries.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-e"></div>
+      <div class="topbar-name">Elegraph</div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user">Welcome, <span id="display-name"></span></span>
+      <span class="day-badge" id="day-badge">Day 1</span>
+      <button class="logout-btn" onclick="handleLogout()">Switch user</button>
+    </div>
+  </nav>
+
+  <div class="app-body">
+
+    <!-- Storage info -->
+    <div class="storage-info">
+      <div class="storage-icon">💾</div>
+      <div class="storage-text">
+        <strong>Your data is saved locally on this device.</strong> Entries persist between sessions as long as you use the same browser and username. To back up, use your browser's bookmark or save this page locally. Clearing browser data will erase saved entries.
+      </div>
+      <div class="storage-key" id="storage-key-display"></div>
+    </div>
+
+    <!-- Progress header -->
+    <div class="progress-header">
+      <div class="progress-left">
+        <div class="progress-greeting" id="progress-greeting">Keep going.</div>
+        <div class="progress-sub" id="progress-sub">Your 30-day writing sprint</div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label">
+          <span>Day 1</span>
+          <span id="progress-pct">0% complete</span>
+          <span>Day 30</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="progress-stats">
+        <div class="stat-pill">
+          <div class="stat-pill-num" id="stat-days">0</div>
+          <div class="stat-pill-label">Days logged</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-num" id="stat-words">0</div>
+          <div class="stat-pill-label">Total words</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-num" id="stat-books">0</div>
+          <div class="stat-pill-label">Books read</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day grid -->
+    <div class="section-card" style="padding:24px 32px 20px;">
+      <div class="section-card-title" style="margin-bottom:16px;">30-Day Sprint</div>
+      <div class="day-grid" id="day-grid"></div>
+      <div class="grid-legend">
+        <span><span class="legend-dot" style="background:var(--crimson)"></span>Logged</span>
+        <span><span class="legend-dot" style="background:var(--white);border:1.5px solid var(--crimson)"></span>Today</span>
+        <span><span class="legend-dot" style="background:var(--cream);border:1.5px solid var(--border)"></span>Upcoming</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('writing', this)">✍️ Writing</button>
+      <button class="tab-btn" onclick="switchTab('reading', this)">📖 Reading</button>
+      <button class="tab-btn" onclick="switchTab('craft', this)">🎯 Craft Notes</button>
+      <button class="tab-btn" onclick="switchTab('ideas', this)">💡 Ideas Vault</button>
+    </div>
+
+    <!-- WRITING TAB -->
+    <div class="tab-panel active" id="tab-writing">
+      <div class="section-card">
+        <div class="section-card-title">Log Today's Writing Session</div>
+        <div class="section-card-sub">Track every session — even a small one counts.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Words written today</label>
+            <input type="number" id="w-words" placeholder="e.g. 500" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>Time spent (minutes)</label>
+            <input type="number" id="w-time" placeholder="e.g. 45" min="0"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>What did you work on?</label>
+            <input type="text" id="w-section" placeholder="e.g. Chapter 3, outline, dialogue"/>
+          </div>
+          <div class="form-group">
+            <label>Energy level</label>
+            <select id="w-energy">
+              <option value="">Select...</option>
+              <option>🔥 In the zone</option>
+              <option>✅ Steady and consistent</option>
+              <option>😐 Pushed through</option>
+              <option>🥱 Struggled but showed up</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Session note (optional)</label>
+            <textarea id="w-note" placeholder="What clicked? What didn't? Something worth remembering..."></textarea>
+          </div>
+        </div>
+        <div class="submit-row">
+          <button class="btn-ghost" onclick="clearWritingForm()">Clear</button>
+          <button class="btn-primary" onclick="saveWritingEntry()">Save Session</button>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-title">Writing History</div>
+        <div class="section-card-sub">All your logged sessions, most recent first.</div>
+        <div class="log-list" id="writing-log"></div>
+      </div>
+    </div>
+
+    <!-- READING TAB -->
+    <div class="tab-panel" id="tab-reading">
+      <div class="section-card">
+        <div class="section-card-title">Add a Book</div>
+        <div class="section-card-sub">Writers grow by reading. Log what you're reading and what you finished.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Book title</label>
+            <input type="text" id="r-title" placeholder="Title"/>
+          </div>
+          <div class="form-group">
+            <label>Author</label>
+            <input type="text" id="r-author" placeholder="Author name"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status</label>
+            <select id="r-status">
+              <option value="queue">In my queue</option>
+              <option value="reading">Currently reading</option>
+              <option value="done">Finished</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Genre / Category</label>
+            <input type="text" id="r-genre" placeholder="e.g. Literary fiction, Craft, Self-help"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Key takeaway or observation (optional)</label>
+            <textarea id="r-note" placeholder="What did this book teach you about writing, story, or life?"></textarea>
+          </div>
+        </div>
+        <div class="submit-row">
+          <button class="btn-ghost" onclick="clearReadingForm()">Clear</button>
+          <button class="btn-primary" onclick="saveReadingEntry()">Add Book</button>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-title">Reading List</div>
+        <div class="section-card-sub">Your books during this 30-day sprint.</div>
+        <div id="reading-log"></div>
+      </div>
+    </div>
+
+    <!-- CRAFT TAB -->
+    <div class="tab-panel" id="tab-craft">
+      <div class="section-card">
+        <div class="section-card-title">Record a Craft Observation</div>
+        <div class="section-card-sub">Things you notice about writing — from books, feedback, your own work, or the world.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="c-category">
+              <option>Voice &amp; Style</option>
+              <option>Structure &amp; Pacing</option>
+              <option>Character</option>
+              <option>Dialogue</option>
+              <option>Show vs Tell</option>
+              <option>Opening &amp; Ending</option>
+              <option>Research &amp; Authenticity</option>
+              <option>Editing &amp; Revision</option>
+              <option>Publishing &amp; Craft</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Source (optional)</label>
+            <input type="text" id="c-source" placeholder="e.g. Reading Chimamanda, editing session, mentor feedback"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>The observation</label>
+            <textarea id="c-note" placeholder="Write it down before you forget. No pressure to be perfect here." style="min-height:100px;"></textarea>
+          </div>
+        </div>
+        <div class="submit-row">
+          <button class="btn-ghost" onclick="clearCraftForm()">Clear</button>
+          <button class="btn-primary" onclick="saveCraftEntry()">Save Note</button>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-title">Craft Notes</div>
+        <div class="section-card-sub">Everything you've observed about the craft of writing.</div>
+        <div id="craft-log"></div>
+      </div>
+    </div>
+
+    <!-- IDEAS TAB -->
+    <div class="tab-panel" id="tab-ideas">
+      <div class="section-card">
+        <div class="section-card-title">Capture an Idea</div>
+        <div class="section-card-sub">Ideas are currency. Bank them here before they disappear.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Idea title / headline</label>
+            <input type="text" id="i-title" placeholder="Give it a short working title"/>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select id="i-type">
+              <option value="book">New book concept</option>
+              <option value="character">Character</option>
+              <option value="plot">Plot / Scene</option>
+              <option value="theme">Theme / Message</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Describe the idea</label>
+            <textarea id="i-body" placeholder="Flesh it out as much or as little as you can right now..." style="min-height:100px;"></textarea>
+          </div>
+        </div>
+        <div class="submit-row">
+          <button class="btn-ghost" onclick="clearIdeaForm()">Clear</button>
+          <button class="btn-primary" onclick="saveIdeaEntry()">Bank This Idea</button>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-title">Ideas Vault</div>
+        <div class="section-card-sub">Every idea you've captured this sprint.</div>
+        <div id="ideas-log"></div>
+      </div>
+    </div>
+
+  </div><!-- /app-body -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Storage helpers ─────────────────────────────────
+let currentUser = null;
+
+function storageKey(section) {
+  return `elegraph_wgd_${currentUser}_${section}`;
+}
+
+function load(section) {
+  try {
+    return JSON.parse(localStorage.getItem(storageKey(section))) || [];
+  } catch { return []; }
+}
+
+function save(section, data) {
+  localStorage.setItem(storageKey(section), JSON.stringify(data));
+}
+
+function loadMeta() {
+  try {
+    return JSON.parse(localStorage.getItem(storageKey('meta'))) || { startDate: null };
+  } catch { return { startDate: null }; }
+}
+
+function saveMeta(meta) {
+  localStorage.setItem(storageKey('meta'), JSON.stringify(meta));
+}
+
+// ── Login ────────────────────────────────────────────
+function handleLogin() {
+  const name = document.getElementById('username-input').value.trim();
+  if (!name) { showToast('Please enter your name to continue.'); return; }
+  currentUser = name.toLowerCase().replace(/\s+/g, '_');
+  
+  // Init start date if first time
+  const meta = loadMeta();
+  if (!meta.startDate) {
+    meta.startDate = new Date().toISOString().split('T')[0];
+    saveMeta(meta);
+  }
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('display-name').textContent = name;
+  document.getElementById('storage-key-display').textContent = `key: ${currentUser}`;
+  
+  initApp();
+}
+
+function handleLogout() {
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('username-input').value = '';
+}
+
+document.getElementById('username-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ── Init ─────────────────────────────────────────────
+function initApp() {
+  updateProgress();
+  renderDayGrid();
+  renderWritingLog();
+  renderReadingLog();
+  renderCraftLog();
+  renderIdeasLog();
+}
+
+function getCurrentDay() {
+  const meta = loadMeta();
+  if (!meta.startDate) return 1;
+  const start = new Date(meta.startDate);
+  const today = new Date();
+  const diff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+  return Math.min(Math.max(diff + 1, 1), 30);
+}
+
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// ── Progress ─────────────────────────────────────────
+function updateProgress() {
+  const writing = load('writing');
+  const reading = load('reading');
+  const currentDay = getCurrentDay();
+  
+  const daysLogged = new Set(writing.map(e => e.date)).size;
+  const totalWords = writing.reduce((s, e) => s + (parseInt(e.words) || 0), 0);
+  const booksRead = reading.filter(b => b.status === 'done').length;
+  const pct = Math.round((daysLogged / 30) * 100);
+
+  document.getElementById('stat-days').textContent = daysLogged;
+  document.getElementById('stat-words').textContent = totalWords >= 1000
+    ? (totalWords / 1000).toFixed(1) + 'k'
+    : totalWords;
+  document.getElementById('stat-books').textContent = booksRead;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '% complete';
+  document.getElementById('day-badge').textContent = `Day ${currentDay}`;
+
+  const greetings = [
+    'Keep writing.', 'Every word counts.', 'You showed up. That matters.',
+    'The page is waiting.', 'One session at a time.', 'Writers write. Keep going.'
+  ];
+  document.getElementById('progress-greeting').textContent = greetings[Math.floor(Math.random() * greetings.length)];
+  document.getElementById('progress-sub').textContent = `Day ${currentDay} of your 30-day writing sprint`;
+}
+
+// ── Day Grid ─────────────────────────────────────────
+function renderDayGrid() {
+  const writing = load('writing');
+  const meta = loadMeta();
+  const startDate = meta.startDate ? new Date(meta.startDate) : new Date();
+  const loggedDates = new Set(writing.map(e => e.date));
+  const today = todayStr();
+  const grid = document.getElementById('day-grid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    const ds = d.toISOString().split('T')[0];
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+    cell.textContent = i + 1;
+    if (loggedDates.has(ds)) cell.classList.add('logged');
+    if (ds === today) cell.classList.add('today');
+    grid.appendChild(cell);
+  }
+}
+
+// ── Tabs ─────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Writing ──────────────────────────────────────────
+function saveWritingEntry() {
+  const words = document.getElementById('w-words').value.trim();
+  const time = document.getElementById('w-time').value.trim();
+  const section = document.getElementById('w-section').value.trim();
+  const energy = document.getElementById('w-energy').value;
+  const note = document.getElementById('w-note').value.trim();
+
+  if (!words && !section) { showToast('Add at least a word count or what you worked on.'); return; }
+
+  const entries = load('writing');
+  entries.unshift({
+    id: Date.now(),
+    date: todayStr(),
+    words: words || '0',
+    time: time || '—',
+    section: section || '—',
+    energy: energy || '—',
+    note
+  });
+  save('writing', entries);
+  clearWritingForm();
+  renderWritingLog();
+  updateProgress();
+  renderDayGrid();
+  showToast('Writing session saved.');
+}
+
+function clearWritingForm() {
+  ['w-words','w-time','w-section','w-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('w-energy').value = '';
+}
+
+function renderWritingLog() {
+  const entries = load('writing');
+  const container = document.getElementById('writing-log');
+  if (!entries.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">✍️</div><div class="empty-text">No writing sessions logged yet.<br/>Start your first one above.</div></div>`;
+    return;
+  }
+  container.innerHTML = entries.map((e, i) => `
+    <div class="log-entry">
+      <button class="delete-btn" onclick="deleteEntry('writing', ${e.id})" title="Delete">×</button>
+      <div class="log-entry-header">
+        <span class="log-day-tag">Day ${getDayNumber(e.date)}</span>
+        <span class="log-date">${formatDate(e.date)}</span>
+      </div>
+      <div class="log-body">
+        <div class="log-field"><div class="log-field-label">Words</div><div class="log-field-value big">${parseInt(e.words).toLocaleString() || '—'}</div></div>
+        <div class="log-field"><div class="log-field-label">Time</div><div class="log-field-value">${e.time} ${e.time !== '—' ? 'min' : ''}</div></div>
+        <div class="log-field"><div class="log-field-label">Worked on</div><div class="log-field-value">${e.section}</div></div>
+        <div class="log-field"><div class="log-field-label">Energy</div><div class="log-field-value">${e.energy}</div></div>
+      </div>
+      ${e.note ? `<div class="log-note">${e.note}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function getDayNumber(dateStr) {
+  const meta = loadMeta();
+  if (!meta.startDate) return 1;
+  const start = new Date(meta.startDate);
+  const d = new Date(dateStr);
+  return Math.max(1, Math.floor((d - start) / (1000 * 60 * 60 * 24)) + 1);
+}
+
+// ── Reading ──────────────────────────────────────────
+function saveReadingEntry() {
+  const title = document.getElementById('r-title').value.trim();
+  if (!title) { showToast('Please add a book title.'); return; }
+  const entries = load('reading');
+  entries.unshift({
+    id: Date.now(),
+    date: todayStr(),
+    title,
+    author: document.getElementById('r-author').value.trim() || '—',
+    status: document.getElementById('r-status').value,
+    genre: document.getElementById('r-genre').value.trim() || '—',
+    note: document.getElementById('r-note').value.trim()
+  });
+  save('reading', entries);
+  clearReadingForm();
+  renderReadingLog();
+  updateProgress();
+  showToast('Book added.');
+}
+
+function clearReadingForm() {
+  ['r-title','r-author','r-genre','r-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('r-status').value = 'queue';
+}
+
+function renderReadingLog() {
+  const entries = load('reading');
+  const container = document.getElementById('reading-log');
+  if (!entries.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-text">No books added yet.<br/>What are you reading this sprint?</div></div>`;
+    return;
+  }
+  const statusLabel = { reading: 'Reading', done: 'Finished', queue: 'In queue' };
+  const statusClass = { reading: 'status-reading', done: 'status-done', queue: 'status-queue' };
+  container.innerHTML = entries.map((e, i) => `
+    <div class="reading-item">
+      <div class="reading-num">${String(entries.length - i).padStart(2,'0')}</div>
+      <div class="reading-info">
+        <div class="reading-title">${e.title}</div>
+        <div class="reading-meta">${e.author} &nbsp;·&nbsp; ${e.genre}</div>
+        ${e.note ? `<div style="font-size:12px;color:var(--ash);margin-top:6px;font-style:italic;line-height:1.5;">${e.note}</div>` : ''}
+      </div>
+      <span class="reading-status ${statusClass[e.status]}">${statusLabel[e.status]}</span>
+      <button class="delete-btn" style="position:static;margin-left:12px;" onclick="deleteEntry('reading', ${e.id})">×</button>
+    </div>
+  `).join('');
+}
+
+// ── Craft ─────────────────────────────────────────────
+function saveCraftEntry() {
+  const note = document.getElementById('c-note').value.trim();
+  if (!note) { showToast('Write down your observation before saving.'); return; }
+  const entries = load('craft');
+  entries.unshift({
+    id: Date.now(),
+    date: todayStr(),
+    category: document.getElementById('c-category').value,
+    source: document.getElementById('c-source').value.trim() || '',
+    note
+  });
+  save('craft', entries);
+  clearCraftForm();
+  renderCraftLog();
+  showToast('Craft note saved.');
+}
+
+function clearCraftForm() {
+  document.getElementById('c-note').value = '';
+  document.getElementById('c-source').value = '';
+}
+
+function renderCraftLog() {
+  const entries = load('craft');
+  const container = document.getElementById('craft-log');
+  if (!entries.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-text">No craft notes yet.<br/>Write down something you noticed about writing today.</div></div>`;
+    return;
+  }
+  container.innerHTML = entries.map(e => `
+    <div class="craft-note">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div class="craft-note-category">${e.category}</div>
+        <button class="delete-btn" style="position:static;" onclick="deleteEntry('craft', ${e.id})">×</button>
+      </div>
+      <div class="craft-note-text">${e.note}</div>
+      ${e.source ? `<div class="craft-note-date">From: ${e.source} &nbsp;·&nbsp; ${formatDate(e.date)}</div>` : `<div class="craft-note-date">${formatDate(e.date)}</div>`}
+    </div>
+  `).join('');
+}
+
+// ── Ideas ─────────────────────────────────────────────
+function saveIdeaEntry() {
+  const title = document.getElementById('i-title').value.trim();
+  const body = document.getElementById('i-body').value.trim();
+  if (!title && !body) { showToast('Add a title or description for your idea.'); return; }
+  const entries = load('ideas');
+  entries.unshift({
+    id: Date.now(),
+    date: todayStr(),
+    title: title || 'Untitled idea',
+    type: document.getElementById('i-type').value,
+    body
+  });
+  save('ideas', entries);
+  clearIdeaForm();
+  renderIdeasLog();
+  showToast('Idea banked.');
+}
+
+function clearIdeaForm() {
+  ['i-title','i-body'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('i-type').value = 'book';
+}
+
+function renderIdeasLog() {
+  const entries = load('ideas');
+  const container = document.getElementById('ideas-log');
+  if (!entries.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">💡</div><div class="empty-text">No ideas captured yet.<br/>Bank every spark. You'll thank yourself later.</div></div>`;
+    return;
+  }
+  const tagClass = { book:'tag-book', character:'tag-character', plot:'tag-plot', theme:'tag-theme', other:'tag-other' };
+  const tagLabel = { book:'New book', character:'Character', plot:'Plot / Scene', theme:'Theme', other:'Other' };
+  container.innerHTML = entries.map(e => `
+    <div class="idea-card">
+      <button class="delete-btn" onclick="deleteEntry('ideas', ${e.id})">×</button>
+      <div class="idea-title">${e.title}</div>
+      ${e.body ? `<div class="idea-body">${e.body}</div>` : ''}
+      <div>
+        <span class="idea-tag ${tagClass[e.type]}">${tagLabel[e.type]}</span>
+        <span style="font-size:11px;color:var(--silver);margin-left:4px;">${formatDate(e.date)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Delete ───────────────────────────────────────────
+function deleteEntry(section, id) {
+  const entries = load(section).filter(e => e.id !== id);
+  save(section, entries);
+  if (section === 'writing') { renderWritingLog(); updateProgress(); renderDayGrid(); }
+  if (section === 'reading') { renderReadingLog(); updateProgress(); }
+  if (section === 'craft') renderCraftLog();
+  if (section === 'ideas') renderIdeasLog();
+  showToast('Entry removed.');
+}
+
+// ── Toast ─────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
